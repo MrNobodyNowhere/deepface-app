@@ -3,10 +3,16 @@ import os
 
 app = Flask(__name__)
 
-# Lazy import DeepFace only when needed to avoid startup issues
+# Global variable to cache DeepFace after first import
+_deepface = None
+
 def get_deepface():
-    from deepface import DeepFace
-    return DeepFace
+    """Lazy import DeepFace only when needed"""
+    global _deepface
+    if _deepface is None:
+        from deepface import DeepFace
+        _deepface = DeepFace
+    return _deepface
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
