@@ -1,0 +1,4 @@
+deepface
+flask
+tensorflow
+opencv-python-headless
