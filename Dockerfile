@@ -13,8 +13,6 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libgomp1 \
     ffmpeg \
-    libsm6 \
-    libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
