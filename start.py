@@ -3,11 +3,11 @@ import os
 
 app = Flask(__name__)
 
-# Global variable to cache DeepFace after first import
+# DO NOT IMPORT DEEPFACE HERE - ONLY IMPORT WHEN NEEDED
 _deepface = None
 
 def get_deepface():
-    """Lazy import DeepFace only when needed"""
+    """Lazy import DeepFace only when API is called"""
     global _deepface
     if _deepface is None:
         from deepface import DeepFace
@@ -26,7 +26,7 @@ def analyze():
         result = DeepFace.analyze(img_path=img_path, actions=actions, enforce_detection=False)
         return jsonify(result)
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/verify', methods=['POST'])
 def verify():
@@ -40,7 +40,7 @@ def verify():
         result = DeepFace.verify(img1_path=img1, img2_path=img2, enforce_detection=False)
         return jsonify(result)
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/represent', methods=['POST'])
 def represent():
@@ -54,18 +54,19 @@ def represent():
         result = DeepFace.represent(img_path=img_path, model_name=model_name, enforce_detection=False)
         return jsonify(result)
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy'})
+    return jsonify({'status': 'healthy', 'message': 'Server is running'})
 
 @app.route('/', methods=['GET'])
 def home():
     """Home endpoint with API documentation"""
     return jsonify({
         'message': 'DeepFace API Server',
+        'status': 'online',
         'endpoints': {
             '/analyze': 'POST - Analyze face attributes (age, gender, emotion, race)',
             '/verify': 'POST - Verify if two faces match',
@@ -76,4 +77,5 @@ def home():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
+    print(f"Starting DeepFace API server on port {port}")
     app.run(host='0.0.0.0', port=port)
