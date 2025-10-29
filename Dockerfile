@@ -24,8 +24,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY start.py .
 
+# Create directory for model cache
+RUN mkdir -p /.deepface && chmod 777 /.deepface
+ENV DEEPFACE_HOME=/.deepface
+
 # Expose port
 EXPOSE 5000
 
-# Run the application
-CMD ["python", "start.py"]
+# Use Gunicorn with proper settings for ML apps
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "2", "--timeout", "300", "--keep-alive", "5", "--log-level", "info", "start:app"]
