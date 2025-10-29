@@ -1,23 +1,18 @@
 from flask import Flask, request, jsonify
-from deepface import DeepFace
 import os
-import base64
-import numpy as np
-from io import BytesIO
-from PIL import Image
 
 app = Flask(__name__)
 
-def decode_base64_image(base64_string):
-    """Convert base64 string to image array"""
-    img_data = base64.b64decode(base64_string.split(',')[1] if ',' in base64_string else base64_string)
-    img = Image.open(BytesIO(img_data))
-    return np.array(img)
+# Lazy import DeepFace only when needed to avoid startup issues
+def get_deepface():
+    from deepface import DeepFace
+    return DeepFace
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
     """Analyze face attributes"""
     try:
+        DeepFace = get_deepface()
         data = request.json
         img_path = data.get('img')
         actions = data.get('actions', ['age', 'gender', 'emotion', 'race'])
@@ -31,6 +26,7 @@ def analyze():
 def verify():
     """Verify if two faces match"""
     try:
+        DeepFace = get_deepface()
         data = request.json
         img1 = data.get('img1')
         img2 = data.get('img2')
@@ -44,6 +40,7 @@ def verify():
 def represent():
     """Get face embeddings"""
     try:
+        DeepFace = get_deepface()
         data = request.json
         img_path = data.get('img')
         model_name = data.get('model_name', 'VGG-Face')
